@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonWorker", "JsonWorker\JsonWorker.csproj", "{2B3DF410-EB72-4A24-8B77-28CA57B95839}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonLib", "JsonLib\JsonLib.csproj", "{A9D0F5F4-E9AC-45FB-A805-C3D8685ED357}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj", "{9FEFE595-0D7B-49A9-A451-E535168321CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{2B3DF410-EB72-4A24-8B77-28CA57B95839}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B3DF410-EB72-4A24-8B77-28CA57B95839}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B3DF410-EB72-4A24-8B77-28CA57B95839}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9D0F5F4-E9AC-45FB-A805-C3D8685ED357}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9D0F5F4-E9AC-45FB-A805-C3D8685ED357}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9D0F5F4-E9AC-45FB-A805-C3D8685ED357}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9D0F5F4-E9AC-45FB-A805-C3D8685ED357}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FEFE595-0D7B-49A9-A451-E535168321CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FEFE595-0D7B-49A9-A451-E535168321CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FEFE595-0D7B-49A9-A451-E535168321CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FEFE595-0D7B-49A9-A451-E535168321CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
