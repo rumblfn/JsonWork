@@ -1,24 +1,8 @@
-using System.Globalization;
 using System.Text;
+using JsonLib.Nodes;
+using Utils;
 
 namespace JsonLib;
-
-/// <summary>
-/// Node with dynamic type.
-/// </summary>
-public class DynamicJsonNode
-{
-    public dynamic? Node { get; set; }
-    public dynamic? Parent { get; }
-    
-    public bool IsEnded { get; set; }
-
-    public DynamicJsonNode(dynamic? node = null, dynamic? parent = null)
-    {
-        Node = node;
-        Parent = parent;
-    }
-}
 
 /// <summary>
 /// Class for reading/writing json.
@@ -30,29 +14,20 @@ public static class JsonParser
     
     private const char ObjectEnd = '}';
     private const char ObjectStart = '{';
-
-    private const char Empty = ' ';
-    private const char Quote = '"';
-    private const char Point = '.';
-    private const char Escape = '\\';
+    
+    private const char WhiteSpace = ' ';
     private const char ElementsSeparator = ',';
-    private const char KeyValueSeparator = ':';
 
-    private static readonly char[] Digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+    private const char Quote = '"';
+    private const char QuoteEscape = '\\';
 
     private const string NullValue = "null";
     private const string BooleanTrue = "true";
     private const string BooleanFalse = "false";
-    
-    /// <summary>
-    /// Converts json string to one line.
-    /// </summary>
-    /// <param name="json">Json string.</param>
-    /// <returns>Json in one line.</returns>
-    private static string ConvertToOneLine(string json)
-    {
-        return string.Join("", json.Split(Environment.NewLine));
-    }
+
+    private static readonly char[] QuoteEndings = { Quote };
+    private static readonly char[] Escapes = { QuoteEscape };
+    private static readonly char[] TypeEndings = { ElementsSeparator, ArrayEnd, ObjectEnd, WhiteSpace };
     
     /// <summary>
     /// Method for parsing json in one line.
@@ -61,184 +36,157 @@ public static class JsonParser
     {
         
     }
+    
+    /// <summary>
+    /// Updates node.
+    /// </summary>
+    /// <param name="currentNode">Node to update.</param>
+    /// <param name="newNode">Node to insert.</param>
+    /// <param name="updateCurrent">Should update current?</param>
+    /// <param name="isString">Should check if string can be key in object.</param>
+    /// <exception cref="Exception">Error with inserting node.</exception>
+    private static void UpdateNode(ref BaseNode? currentNode, BaseNode newNode, bool updateCurrent = true, bool isString = false)
+    {
+        switch (currentNode)
+        {
+            case DictionaryNode dictionaryNode when updateCurrent:
+                currentNode = isString ? dictionaryNode.AddKeyOrValue(newNode) : dictionaryNode.AddWithKeyFromCache(newNode);
+                break;
+            case DictionaryNode dictionaryNode when isString:
+                dictionaryNode.AddKeyOrValue(newNode);
+                break;
+            case DictionaryNode dictionaryNode:
+                dictionaryNode.AddWithKeyFromCache(newNode);
+                break;
+            case ListNode listNode:
+            {
+                if (updateCurrent)
+                {
+                    currentNode = listNode.Add(newNode);
+                }
+
+                break;
+            }
+            case null:
+                currentNode = newNode;
+                break;
+            default:
+                throw new Exception();
+        }
+    }
 
     /// <summary>
-    /// 
+    /// Parses any json strings including whitespaces and breaks.
     /// </summary>
-    /// <param name="line"></param>
-    private static void ParseLine(string line)
+    /// <param name="json">String in JSON format.</param>
+    private static void ParseJson(string json)
     {
-        var lineSb = new StringBuilder(line);
-        var node = new DynamicJsonNode();
+        var jsonSb = new StringBuilder(json.Trim());
+        BaseNode? node = null;
 
-        for (int i = 0; i < lineSb.Length; i++)
+        for (int i = 0; i < jsonSb.Length - 1; i++)
         {
-            char letter = lineSb[i];
+            BaseNode newNode;
+            char letter = jsonSb[i];
+            string value = string.Empty;
 
-            if (node.Node is List<dynamic>)
+            switch (letter)
             {
-                if (letter is KeyValueSeparator or ObjectEnd)
-                {
+                // Arrays.
+                case ArrayStart:
+                    var listData = new List<BaseNode>();
+                    newNode = new ListNode(listData, node);
+                    UpdateNode(ref node, newNode);
+                    break;
+                case ArrayEnd when node is ListNode:
+                    node = node.Parent;
+                    break;
+                case ArrayEnd:
                     throw new Exception();
+                
+                // Objects.
+                case ObjectStart:
+                    var dictData = new Dictionary<StringNode, BaseNode>();
+                    newNode = new DictionaryNode(dictData, node);
+                    UpdateNode(ref node, newNode);
+                    break;
+                case ObjectEnd when node is DictionaryNode:
+                    node = node.Parent;
+                    break;
+                case ObjectEnd:
+                    throw new Exception();
+                
+                // Values.
+                case Quote:
+                {
+                    int rightQuoteIndex = Helpers.GetRightIndex(jsonSb, i, QuoteEndings, Escapes);
+                    value = jsonSb.ToString(i, rightQuoteIndex + 1 - i);
+                
+                    newNode = new StringNode(value);
+                    UpdateNode(ref node, newNode, false, true);
+                    break;
+                }
+                default:
+                {
+                    if (letter == Environment.NewLine[0])
+                    {
+                        value = jsonSb.ToString(i, Environment.NewLine.Length);
+                    }
+                    else if (letter == BooleanTrue[0])
+                    {
+                        value = jsonSb.ToString(i, BooleanTrue.Length);
+
+                        if (value != BooleanTrue)
+                        {
+                            throw new Exception();
+                        }
+                
+                        newNode = new BooleanNode(true, node);
+                        UpdateNode(ref node, newNode, false);
+                    }
+                    else if (letter == BooleanFalse[0])
+                    {
+                        value = jsonSb.ToString(i, BooleanFalse.Length);
+                    
+                        if (value != BooleanFalse)
+                        {
+                            throw new Exception();
+                        }
+                
+                        newNode = new BooleanNode(false, node);
+                        UpdateNode(ref node, newNode, false);
+                    }
+                    else if (letter == NullValue[0])
+                    {
+                        value = jsonSb.ToString(i, NullValue.Length);
+                    
+                        if (value != NullValue)
+                        {
+                            throw new Exception();
+                        }
+                
+                        newNode = new BooleanNode(null, node);
+                        UpdateNode(ref node, newNode, false);
+                    }
+                    else if (char.IsDigit(letter))
+                    {
+                        int rightIndex = Helpers.GetRightIndex(jsonSb, i, TypeEndings);
+                        value = jsonSb.ToString(i, rightIndex - i);
+                
+                        decimal number = decimal.Parse(value.Replace('.', ','));
+                        newNode = new NumberNode(number, node);
+                        UpdateNode(ref node, newNode, false);
+                    }
+
+                    break;
                 }
             }
-            else if (node.Node is Dictionary<string, dynamic>)
-            {
-                
-            }
-            else
-            {
-                
-            }
+            
+            // Update cursor index with length of handled value.
+            i += value.Length;
         }
         
-        // var keyOrValue = new StringBuilder();
-        // var current = new DynamicJsonNode();
-        //
-        // bool isQuoted = false;
-        // bool isQuotedEnd = false;
-        //
-        // bool separated = false;
-        //
-        // bool isPointed = false;
-        //
-        // var lineSb = new StringBuilder(line);
-        // for (int i = 0; i < lineSb.Length; i++)
-        // {
-        //     DynamicJsonNode? node = null;
-        //     char letter = lineSb[i];
-        //     switch (letter)
-        //     {
-        //         case ObjectStart:
-        //             if (isQuoted)
-        //             {
-        //                 keyOrValue.Append(letter);
-        //             }
-        //             else
-        //             {
-        //                 node = new DynamicJsonNode(new Dictionary<string, dynamic?>(), current);
-        //                 current = node;
-        //             }
-        //             break;
-        //         case ObjectEnd:
-        //             current.IsEnded = true;
-        //             break;
-        //         case ArrayStart:
-        //             node = new DynamicJsonNode(new List<dynamic>(), current);
-        //             current = node;
-        //             break;
-        //         case ArrayEnd:
-        //             current.IsEnded = true;
-        //             break;
-        //         case Quote:
-        //             if (node is null)
-        //             {
-        //                 node = new DynamicJsonNode(string.Empty, current);
-        //                 current = node;
-        //             }
-        //             
-        //             if (isQuoted)
-        //             {
-        //                 isQuotedEnd = true;
-        //                 separated = false;
-        //                 if (node.Node is List<dynamic>)
-        //                 {
-        //                     node.Node.Add(keyOrValue);
-        //                 }
-        //                 else if (node.Node is Dictionary<string, dynamic>)
-        //                 {
-        //                     node.Node[keyOrValue] = null;
-        //                 }
-        //                 else if ('"' + keyOrValue.ToString() + '"' == lineSb.ToString())
-        //                 {
-        //                     node.Node = keyOrValue.ToString();
-        //                 }
-        //                 else
-        //                 {
-        //                     throw new Exception();
-        //                 }
-        //             }
-        //             else
-        //             {
-        //                 if (keyOrValue.Length > 0)
-        //                 {
-        //                     throw new Exception();
-        //                 }
-        //                 isQuoted = true;
-        //             }
-        //
-        //             break;
-        //         case Escape:
-        //             if (isQuoted)
-        //             {
-        //                 keyOrValue.Append(lineSb[i + 1]);
-        //                 i++;
-        //             }
-        //             else
-        //             {
-        //                 throw new Exception();
-        //             }
-        //
-        //             break;
-        //         case KeyValueSeparator:
-        //             if (isQuotedEnd)
-        //             {
-        //                 if (separated || node?.Node is List<dynamic>)
-        //                 {
-        //                     throw new Exception();
-        //                 }
-        //                 separated = true;
-        //             }
-        //             else
-        //             {
-        //                 keyOrValue.Append(letter);
-        //             }
-        //             break;
-        //         case ElementsSeparator:
-        //             
-        //             break;
-        //         case Empty:
-        //             if (isQuoted)
-        //             {
-        //                 keyOrValue.Append(letter);
-        //             } 
-        //             // else if (keyOrValue.Length > 0)
-        //             // {
-        //             //     string compareString = keyOrValue.ToString();
-        //             //     if (compareString == NullValue)
-        //             //     {
-        //             //         
-        //             //     } else if (compareString == BooleanTrue)
-        //             //     {
-        //             //         
-        //             //     } else if (compareString == BooleanFalse)
-        //             //     {
-        //             //         
-        //             //     } else if (isPointed)
-        //             //     {
-        //             //         
-        //             //     }
-        //             //     else
-        //             //     {
-        //             //         throw new Exception();
-        //             //     }
-        //             // }
-        //
-        //             break;
-        //         default:
-        //             if (letter == Point && !isQuoted)
-        //             {
-        //                 if (isPointed || !Digits.Contains(lineSb[i + 1]))
-        //                 {
-        //                     throw new Exception();
-        //                 }
-        //                 
-        //                 isPointed = true;
-        //             }
-        //             keyOrValue.Append(letter);
-        //             break;
-        //     }
-        // }
+        Console.WriteLine(node);
     }
 
     /// <summary>
@@ -253,6 +201,6 @@ public static class JsonParser
         {
             oneLine.Append(line.Trim());
         }
-        ParseLine(oneLine.ToString());
+        ParseJson(oneLine.ToString());
     }
 }

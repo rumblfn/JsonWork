@@ -13,7 +13,7 @@ public static class JsonProcess
     public static void Run()
     {
         JsonParser.ReadJson("/Users/samilvaliahmetov/Projects/ControlHomework3-1/assets/data_4V.json");
-        
+
         // var dp = new DataPanel(Templates.InputTypeGroup, false);
         // dp.Run();
     }
