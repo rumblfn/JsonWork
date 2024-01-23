@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace JsonLib.Nodes;
 
 /// <summary>
@@ -5,9 +7,16 @@ namespace JsonLib.Nodes;
 /// </summary>
 public class NumberNode : BaseNode
 {
-    public NumberNode(decimal data, BaseNode? parent = null) 
+    public NumberNode(double data, BaseNode? parent = null) 
         : base(data, parent)
     {
         
+    }
+    
+    public override string ToString()
+    {
+        return Data is null
+            ? string.Empty
+            : ((decimal)Data).ToString(CultureInfo.InvariantCulture);
     }
 }

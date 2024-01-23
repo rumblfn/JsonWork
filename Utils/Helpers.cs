@@ -1,21 +1,23 @@
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace Utils;
 
 /// <summary>
-/// Helper functions.
+/// Provides a set of helper functions.
 /// </summary>
 public static class Helpers
 {
     /// <summary>
-    /// Function that getting right index of specified elements and skipping specified escape elements.
+    /// It iterates through the StringBuilder starting from the left index,
+    /// while skipping any escape characters if specified.
     /// </summary>
-    /// <param name="sb"></param>
-    /// <param name="leftIndex"></param>
-    /// <param name="endings"></param>
-    /// <param name="escape"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
+    /// <param name="sb">StringBuilder object.</param>
+    /// <param name="leftIndex">Start index.</param>
+    /// <param name="endings">Array of ending characters.</param>
+    /// <param name="escape">Optional array of escape characters.</param>
+    /// <returns>Right index of the first occurrence of an ending character.</returns>
+    /// <exception cref="Exception">If no ending character is found, an exception is thrown.</exception>
     public static int GetRightIndex(StringBuilder sb, int leftIndex, char[] endings, char[]? escape = null)
     {
         for (int i = leftIndex + 1; i < sb.Length; i++)

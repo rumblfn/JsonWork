@@ -6,7 +6,7 @@ namespace JsonLib.Nodes;
 /// </summary>
 public abstract class BaseNode
 {
-    protected object? Data { get; }
+    public object? Data { get; }
     public BaseNode? Parent { get; }
 
     protected BaseNode(object? data, BaseNode? parent = null)

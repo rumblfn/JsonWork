@@ -8,8 +8,49 @@ public enum Color
     Error,
 }
 
-public enum InputType
+public enum ModelAction
 {
-    Console,
-    File,
+    Filter,
+    Sort
+}
+
+public enum ActionType
+{
+    FileInput,
+    ConsoleInput,
+    
+    FilterById,
+    FilterByName,
+    FilterByPrice,
+    FilterByReviews,
+    FilterByCategory,
+    FilterByQuantity,
+    FilterByDiscount,
+    
+    SortById,
+    SortByName,
+    SortByPrice,
+    SortByReviews,
+    SortByCategory,
+    SortByQuantity,
+    
+    SetDiscountTrue,
+    SetDiscountFalse,
+    
+    SortByIdAscending,
+    SortByIdDescending,
+    SortByNameAlphabetical,
+    SortByNameAlphabeticalReverse,
+    SortByPriceAscending,
+    SortByPriceDescending,
+    SortByReviewsAscending,
+    SortByReviewsDescending,
+    SortByCategoryAscending,
+    SortByCategoryDescending,
+    SortByQuantityAscending,
+    SortByQuantityDescending,
+    
+    ShowData,
+    SaveToExistingFile,
+    SaveToNewFile,
 }

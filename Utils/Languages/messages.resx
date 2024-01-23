@@ -23,15 +23,129 @@
         <value>Press any key to restart or {KEY} to exit.</value>
     </data>
     <data name="PanelMessage" xml:space="preserve">
-        <value>Select an action.</value>
+        <value>
+            Select an action. Control panel with keys: 
+            Move — [⬅] [⬆] [⬇] [⮕]; Select — [Enter]; Exit — [Q].
+        </value>
+    </data>
+    <data name="WorkPanelMessage" xml:space="preserve">
+        <value>
+            Products count: {COUNT}. Control panel with keys: 
+            Move — [⬅] [⬆] [⬇] [⮕]; Select — [Enter]; Exit — [Q].
+        </value>
     </data>
     <data name="SelectedItemError" xml:space="preserve">
         <value>One element in group should be selected.</value>
     </data>
+    <data name="InputPanelName" xml:space="preserve">
+        <value>Select input type or Q to exit</value>
+    </data>
+    <data name="FilterAction" xml:space="preserve">
+        <value>Filter by</value>
+    </data>
+    <data name="SortAction" xml:space="preserve">
+        <value>Sort by</value>
+    </data>
+    <data name="DataAction" xml:space="preserve">
+        <value>Data actions</value>
+    </data>
+    <data name="SetInitialData" xml:space="preserve">
+        <value>Set initial data</value>
+    </data>
     <data name="ConsoleInput" xml:space="preserve">
-        <value>Enter your JSON string here:</value>
+        <value>> Enter your JSON data here, to stop press Ctrl + Z or Ctrl + D if you on unix system: </value>
+    </data>
+    <data name="FilePathInput" xml:space="preserve">
+        <value>> Enter path to JSON file: </value>
     </data>
     <data name="InvalidOperationException" xml:space="preserve">
         <value>Returned: {KEY}. Error with reading key: {EXCEPTION}</value>
+    </data>
+    <data name="SetInSecurityExceptionError" xml:space="preserve">
+        <value>Can not set in console stream.</value>
+    </data>
+    <data name="FileNotFoundExceptionError" xml:space="preserve">
+        <value>File not found.</value>
+    </data>
+    <data name="ProductId" xml:space="preserve">
+        <value>id</value>
+    </data>
+    <data name="ProductName" xml:space="preserve">
+        <value>name</value>
+    </data>
+    <data name="ProductCategory" xml:space="preserve">
+        <value>category</value>
+    </data>
+    <data name="ProductPrice" xml:space="preserve">
+        <value>price</value>
+    </data>
+    <data name="ProductQuantityInStock" xml:space="preserve">
+        <value>quantity in stock</value>
+    </data>
+    <data name="ProductIsDiscounted" xml:space="preserve">
+        <value>is discounted</value>
+    </data>
+    <data name="ProductReviews" xml:space="preserve">
+        <value>reviews</value>
+    </data>
+    <data name="InputTypeConsole" xml:space="preserve">
+        <value>console</value>
+    </data>
+    <data name="InputTypeFile" xml:space="preserve">
+        <value>file</value>
+    </data>
+    <data name="FilterByIdMessage" xml:space="preserve">
+        <value>> Filter by product id. Enter product id here: </value>
+    </data>
+    <data name="ParseIntegerError" xml:space="preserve">
+        <value>Could not parse {INPUT} to integer.</value>
+    </data>
+    <data name="FilterByNameMessage" xml:space="preserve">
+        <value>> Filter by product name. Enter what product name should contain: </value>
+    </data>
+    <data name="FilterByReviewsMessage" xml:space="preserve">
+        <value>> Filter by product reviews. Enter what reviews should contain: </value>
+    </data>
+    <data name="FilterByPriceMessage" xml:space="preserve">
+        <value>Filter by product price</value>
+    </data>
+    <data name="FilterByMinPriceMessage" xml:space="preserve">
+        <value>> Enter min product price: </value>
+    </data>
+    <data name="FilterByMaxPriceMessage" xml:space="preserve">
+        <value>> Enter max product price: </value>
+    </data>
+    <data name="FilterByCategoryMessage" xml:space="preserve">
+        <value>> Enter product category name or sub name: </value>
+    </data>
+    <data name="FilterByQuantityMessage" xml:space="preserve">
+        <value>Filter by product quantity</value>
+    </data>
+    <data name="FilterByMinQuantityMessage" xml:space="preserve">
+        <value>> Enter min product quantity: </value>
+    </data>
+    <data name="DiscountTypeAction" xml:space="preserve">
+        <value>Select filter discount type</value>
+    </data>
+    <data name="SetDiscountTrue" xml:space="preserve">
+        <value>On discount</value>
+    </data>
+    <data name="SetDiscountFalse" xml:space="preserve">
+        <value>All</value>
+    </data>
+    <data name="DiscountUpdateMessage" xml:space="preserve">
+        <value>Products filtered by set discount to {STATUS}</value>
+    </data>
+    <data name="SortType" xml:space="preserve">
+        <value>Select sort type of {KEY}</value>
+    </data>
+    <data name="ShowData" xml:space="preserve">
+        <value>show</value>
+    </data>
+    <data name="Save" xml:space="preserve">
+        <value>Save with cached path</value>
+    </data>
+    <data name="SaveNew" xml:space="preserve">
+        <value>Save with new path</value>
     </data>
 </root>

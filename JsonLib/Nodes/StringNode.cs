@@ -10,14 +10,15 @@ public class StringNode : BaseNode
     {
         
     }
+    
+    public bool Equals(string key)
+    {
+        string data = (string)Data!;
+        return data[1..^1] == key;
+    }
 
     public override string ToString()
     {
-        if (Data is null)
-        {
-            return string.Empty;
-        }
-        
-        return (string)Data;
+        return Data is null ? string.Empty : (string)Data;
     }
 }

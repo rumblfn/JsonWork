@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace JsonLib.Nodes;
 
 /// <summary>
@@ -5,9 +7,16 @@ namespace JsonLib.Nodes;
 /// </summary>
 public class BooleanNode: BaseNode
 {
-    public BooleanNode(bool? data, BaseNode? parent = null) 
+    public BooleanNode(bool? data, BaseNode? parent = null)
         : base(data, parent)
     {
         
+    }
+    
+    public override string ToString()
+    {
+        return Data is null
+            ? string.Empty
+            : ((bool)Data).ToString(CultureInfo.InvariantCulture);
     }
 }

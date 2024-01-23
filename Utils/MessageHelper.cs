@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Resources;
+using System.Text.RegularExpressions;
 
 namespace Utils;
 
@@ -28,7 +29,7 @@ public static class MessageHelper
     public static string Get(string name, params string[] arguments)
     {
         string message = Rm.GetString(name) ?? "";
-
+        
         for (int i = 0; i < arguments.Length; i += 2)
         {
             message = message.Replace($"{{{arguments[i]}}}", arguments[i + 1]);

@@ -13,7 +13,6 @@ internal class DataPanel
     private int _currentCursorColumnIndex = Console.CursorLeft;
     
     private readonly MenuGroup[] _menuGroups;
-    private readonly bool _repeat;
 
     private ConsoleKey _pressedButtonKey;
     private bool _elementSelected;
@@ -22,10 +21,8 @@ internal class DataPanel
     /// Initialization.
     /// </summary>
     /// <param name="groups">Panel items.</param>
-    /// <param name="repeat">If panel should be cycled.</param>
-    public DataPanel(MenuGroup[] groups, bool repeat)
+    public DataPanel(MenuGroup[] groups)
     {
-        _repeat = repeat;
         _menuGroups = groups;
         _elementSelected = false;
         
@@ -40,7 +37,7 @@ internal class DataPanel
     private void Restore(string message)
     {
         Console.Clear();
-        ConsoleMethod.NicePrint(message);
+        ConsoleMethod.NicePrint(message, Color.Primary);
         UpdateCursorPosition();
     }
 
@@ -64,7 +61,10 @@ internal class DataPanel
             }
         }
 
-        throw new Exception(MessageHelper.Get("SelectedItemError"));
+        const int initialRowNumber = 0, initialColumnNumber = 0;
+        _menuGroups[initialRowNumber].Items[initialColumnNumber].Selected = true;
+        
+        return (initialRowNumber, initialColumnNumber);
     }
     
     /// <summary>
@@ -73,6 +73,7 @@ internal class DataPanel
     private void UpdateSelectedItem(int updatedRow, int updatedColumn)
     {
         (int currentRow, int currentColumn) = GetSelectedItemIndexes();
+        
         MenuItem[] rowItems = _menuGroups[currentRow].Items;
         
         // Check accessible to change selected item.
@@ -85,19 +86,18 @@ internal class DataPanel
             return;
         }
 
+        if (updatedRow != currentRow)
+        {
+            // Update next row selected column.
+            MenuItem[] nextRowItems = _menuGroups[updatedRow].Items;
+            if (updatedColumn >= nextRowItems.Length)
+            {
+                updatedColumn = nextRowItems.Length - 1;
+            }
+        }
+
         rowItems[currentColumn].Selected = false;
         _menuGroups[updatedRow].Items[updatedColumn].Selected = true;
-    }
-    
-    /// <summary>
-    /// Processes the selected item.
-    /// </summary>
-    private void HandleEnterKey()
-    {
-        _elementSelected = true;
-        (int rowIndex, int columnIndex) = GetSelectedItemIndexes();
-        MenuItem item = _menuGroups[rowIndex].Items[columnIndex];
-        item.SelectAction.Invoke();
     }
 
     /// <summary>
@@ -125,7 +125,7 @@ internal class DataPanel
                 _toExit = true;
                 break;
             case ConsoleKey.Enter:
-                HandleEnterKey();
+                _elementSelected = true;
                 return;
             default:
                 return;
@@ -146,9 +146,9 @@ internal class DataPanel
     /// <summary>
     /// Panel runner.
     /// </summary>
-    public void Run()
+    public MenuItem? Run(string title)
     {
-        Restore(MessageHelper.Get("PanelMessage"));
+        Restore(title);
 
         while (!_toExit)
         {
@@ -156,11 +156,16 @@ internal class DataPanel
             _pressedButtonKey = ConsoleMethod.ReadKey();
             HandleKeys();
 
-            if (!_repeat && _elementSelected)
+            if (!_elementSelected)
             {
-                return;
+                continue;
             }
+            
+            (int rowIndex, int columnIndex) = GetSelectedItemIndexes();
+            return _menuGroups[rowIndex].Items[columnIndex];
         }
+
+        return null;
     }
     
     /// <summary>

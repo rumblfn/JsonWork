@@ -13,6 +13,11 @@ public class ListNode : BaseNode
         
     }
 
+    public List<BaseNode>? GetData()
+    {
+        return Data as List<BaseNode>;
+    }
+
     /// <summary>
     /// Adds new node to collection.
     /// </summary>
@@ -40,9 +45,9 @@ public class ListNode : BaseNode
 
         for (int i = 0; i < data.Count; i++)
         {
-            sb.Append($"{i + 1}. " + data + Environment.NewLine);
+            sb.Append($"{i + 1}. " + data[i] + Environment.NewLine);
         }
         
-        return "Collection: [ " + sb + " ]";
+        return $"Collection: [{Environment.NewLine}" + sb + "]";
     }
 }

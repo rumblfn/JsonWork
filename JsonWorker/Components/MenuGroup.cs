@@ -31,11 +31,11 @@ public class MenuGroup
             ConsoleMethod.NicePrint("?", Color.Primary, " ");
         }
 
-        Console.Write(Name + ":");
+        Console.Write(Name + @":");
         foreach (MenuItem item in Items)
         {
             item.Write();
         }
-        Console.WriteLine("  ");
+        Console.WriteLine(@"  ");
     }
 }

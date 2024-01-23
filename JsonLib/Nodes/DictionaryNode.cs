@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace JsonLib.Nodes;
 
 /// <summary>
@@ -59,19 +61,11 @@ public class DictionaryNode : BaseNode
     }
     
     /// <summary>
-    /// Accessing to data by indexing.
+    /// Setting data by key.
     /// </summary>
     /// <param name="key">Dictionary key.</param>
     public BaseNode? this[StringNode key]
     {
-        get
-        {
-            if (Data is Dictionary<StringNode, BaseNode?> data)
-            {
-                return data[key];
-            }
-            return null;
-        }
         set
         {
             if (Data is Dictionary<StringNode, BaseNode?> data)
@@ -79,5 +73,41 @@ public class DictionaryNode : BaseNode
                 data[key] = value;
             }
         }
+    }
+    
+    /// <summary>
+    /// Accessing to data by indexing.
+    /// </summary>
+    /// <param name="key">Dictionary key.</param>
+    public BaseNode? this[string key]
+    {
+        get
+        {
+            if (Data is Dictionary<StringNode, BaseNode?> data)
+            {
+                return (
+                    from kvp in data 
+                    where kvp.Key.Equals(key) 
+                    select kvp.Value
+                    ).First();
+            }
+            return null;
+        }
+    }
+    
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        if (Data is not Dictionary<StringNode, BaseNode> data)
+        {
+            throw new Exception();
+        }
+
+        foreach (KeyValuePair<StringNode, BaseNode> kvp in data)
+        {
+            sb.Append($"{kvp.Key}: " + kvp.Value + Environment.NewLine);
+        }
+        
+        return $"Collection: {{{Environment.NewLine}" + sb + "}";
     }
 }

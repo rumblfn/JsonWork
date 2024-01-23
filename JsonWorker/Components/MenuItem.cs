@@ -8,20 +8,18 @@ namespace JsonWorker.Components;
 public class MenuItem
 {
     private string Name { get; }
-    public Action SelectAction;
-    public bool Selected;
+    public readonly ActionType Action;
+    public bool Selected = false;
 
     /// <summary>
     /// Initialization.
     /// </summary>
     /// <param name="name">Element name.</param>
-    /// <param name="selectAction">The method being called.</param>
-    /// <param name="selected">Is item selected.</param>
-    public MenuItem(string name, Action selectAction, bool selected)
+    /// <param name="action">The method being called.</param>
+    public MenuItem(string name, ActionType action)
     {
         Name = name;
-        Selected = selected;
-        SelectAction = selectAction;
+        Action = action;
     }
 
     /// <summary>

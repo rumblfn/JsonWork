@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Utils;
+﻿using Utils;
 
 namespace JsonWorker;
 
@@ -31,7 +30,8 @@ public static class Program
         {
             // try
             // {
-                JsonProcess.Run();
+                var dm = new DataManager();
+                dm.Run();
             // }
             // catch (Exception ex)
             // {

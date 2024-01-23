@@ -1,5 +1,6 @@
-using System.Text;
+using System.Globalization;
 using JsonLib.Nodes;
+using System.Text;
 using Utils;
 
 namespace JsonLib;
@@ -16,7 +17,9 @@ public static class JsonParser
     private const char ObjectStart = '{';
     
     private const char WhiteSpace = ' ';
+    private const char KeyValueSeparator = ':';
     private const char ElementsSeparator = ',';
+    private const char Tab = '\t';
 
     private const char Quote = '"';
     private const char QuoteEscape = '\\';
@@ -29,12 +32,69 @@ public static class JsonParser
     private static readonly char[] Escapes = { QuoteEscape };
     private static readonly char[] TypeEndings = { ElementsSeparator, ArrayEnd, ObjectEnd, WhiteSpace };
     
+    private static void WriteKeyValuePair(string key, string? value)
+    {
+        Console.WriteLine($@"{Tab}{Tab}{Quote}{key}{Quote}{KeyValueSeparator} {value}{ElementsSeparator}");
+    }
+
+    private static void HandleLastElementEnding(int currentIndex, int lastIndex)
+    {
+        if (currentIndex != lastIndex)
+        {
+            Console.Write(ElementsSeparator);
+        }
+            
+        Console.Write(Environment.NewLine);
+    }
+    
     /// <summary>
     /// Method for parsing json in one line.
     /// </summary>
-    public static void WriteJson()
+    public static void WriteJson(List<Product> products)
     {
+        Console.WriteLine(ArrayStart);
+
+        int lastProductIndex = products.Count - 1;
+        for (int i = 0 ; i <= lastProductIndex; i++)
+        {
+            Product product = products[i];
+            Console.WriteLine($@"{Tab}{ObjectStart}");
+            
+            WriteKeyValuePair("product_id", product.Id.ToString());
+            WriteKeyValuePair("product_name", product.Name);
+            WriteKeyValuePair("category", product.Category);
+            WriteKeyValuePair("price", product.Price.ToString(CultureInfo.InvariantCulture));
+            WriteKeyValuePair("quantity_in_stock", product.QuantityInStock.ToString());
+
+            Console.WriteLine(product.IsDiscounted
+                ? $@"{Tab}{Tab}{Quote}is_discounted{Quote}{KeyValueSeparator} {BooleanTrue}{ElementsSeparator}"
+                : $@"{Tab}{Tab}{Quote}is_discounted{Quote}{KeyValueSeparator} {BooleanFalse}{ElementsSeparator}");
+            Console.Write($@"{Tab}{Tab}{Quote}reviews{Quote}{KeyValueSeparator} {ArrayStart}");
+
+            if (product.Reviews is null)
+            {
+                Console.WriteLine(ArrayEnd);
+            }
+            else
+            {
+                Console.WriteLine();
+
+                int lastReviewIndex = product.Reviews.Count - 1;
+                for (int j = 0; j <= lastReviewIndex; j++)
+                {
+                    string review = product.Reviews[j];
+                    Console.Write($@"{Tab}{Tab}{Tab}{review}");
+                    HandleLastElementEnding(j, lastReviewIndex);
+                }
+                
+                Console.WriteLine($@"{Tab}{Tab}{ArrayEnd}");
+            }
         
+            Console.Write($@"{Tab}{ObjectEnd}");
+            HandleLastElementEnding(i, lastProductIndex);
+        }
+        
+        Console.WriteLine(ArrayEnd);
     }
     
     /// <summary>
@@ -50,7 +110,9 @@ public static class JsonParser
         switch (currentNode)
         {
             case DictionaryNode dictionaryNode when updateCurrent:
-                currentNode = isString ? dictionaryNode.AddKeyOrValue(newNode) : dictionaryNode.AddWithKeyFromCache(newNode);
+                currentNode = isString 
+                    ? dictionaryNode.AddKeyOrValue(newNode) 
+                    : dictionaryNode.AddWithKeyFromCache(newNode);
                 break;
             case DictionaryNode dictionaryNode when isString:
                 dictionaryNode.AddKeyOrValue(newNode);
@@ -63,6 +125,10 @@ public static class JsonParser
                 if (updateCurrent)
                 {
                     currentNode = listNode.Add(newNode);
+                }
+                else
+                {
+                    listNode.Add(newNode);
                 }
 
                 break;
@@ -79,12 +145,13 @@ public static class JsonParser
     /// Parses any json strings including whitespaces and breaks.
     /// </summary>
     /// <param name="json">String in JSON format.</param>
-    private static void ParseJson(string json)
+    /// <returns>Root node.</returns>
+    private static BaseNode? ParseJson(string json)
     {
         var jsonSb = new StringBuilder(json.Trim());
         BaseNode? node = null;
 
-        for (int i = 0; i < jsonSb.Length - 1; i++)
+        for (int i = 0; i < jsonSb.Length; i++)
         {
             BaseNode newNode;
             char letter = jsonSb[i];
@@ -99,6 +166,10 @@ public static class JsonParser
                     UpdateNode(ref node, newNode);
                     break;
                 case ArrayEnd when node is ListNode:
+                    if (node.Parent is null)
+                    {
+                        return node;
+                    }
                     node = node.Parent;
                     break;
                 case ArrayEnd:
@@ -111,6 +182,10 @@ public static class JsonParser
                     UpdateNode(ref node, newNode);
                     break;
                 case ObjectEnd when node is DictionaryNode:
+                    if (node.Parent is null)
+                    {
+                        return node;
+                    }
                     node = node.Parent;
                     break;
                 case ObjectEnd:
@@ -173,7 +248,7 @@ public static class JsonParser
                         int rightIndex = Helpers.GetRightIndex(jsonSb, i, TypeEndings);
                         value = jsonSb.ToString(i, rightIndex - i);
                 
-                        decimal number = decimal.Parse(value.Replace('.', ','));
+                        double number = double.Parse(value.Replace('.', ','));
                         newNode = new NumberNode(number, node);
                         UpdateNode(ref node, newNode, false);
                     }
@@ -183,24 +258,86 @@ public static class JsonParser
             }
             
             // Update cursor index with length of handled value.
-            i += value.Length;
+            if (value.Length > 0)
+            {
+                i += value.Length - 1;
+            }
+        }
+
+        return node;
+    }
+
+    private static List<Product> ConvertNodeToProducts(BaseNode? node)
+    {
+        var list = new List<Product>();
+
+        if (node is not ListNode listNode)
+        {
+            return list;
         }
         
-        Console.WriteLine(node);
+        List<BaseNode>? data = listNode.GetData();
+
+        if (data is null)
+        {
+            return list;
+        }
+            
+        foreach (BaseNode dataNode in data)
+        {
+            if (dataNode is not DictionaryNode dictionaryNode) continue;
+                    
+            var productIdNode = dictionaryNode["product_id"] as NumberNode;
+            var productName = dictionaryNode["product_name"] as StringNode;
+            var category = dictionaryNode["category"] as StringNode;
+            var price = dictionaryNode["price"] as NumberNode;
+            var quantityInStock = dictionaryNode["quantity_in_stock"] as NumberNode;
+            var isDiscounted = dictionaryNode["is_discounted"] as BooleanNode;
+                        
+            var reviews = dictionaryNode["reviews"] as ListNode;
+            var reviewsList = new List<string>();
+            List<BaseNode>? reviewsData = reviews?.GetData();
+
+            if (reviewsData != null)
+            {
+                foreach (BaseNode childNode in reviewsData)
+                {
+                    if (childNode is StringNode stringNode)
+                    {
+                        reviewsList.Add(stringNode.ToString());
+                    }
+                }
+            }
+
+            list.Add(new Product
+            {
+                Id = (int)Math.Round((double)(productIdNode?.Data ?? 0)),
+                Name = productName?.ToString(),
+                Category = category?.ToString(),
+                Price = (double)(price?.Data ?? 0),
+                QuantityInStock = (int)Math.Round((double)(quantityInStock?.Data ?? 0)),
+                IsDiscounted = (bool)(isDiscounted?.Data ?? false),
+                Reviews = reviewsList,
+            });
+        }
+
+        return list;
     }
 
     /// <summary>
     /// Parses string to json.
     /// </summary>
-    /// <param name="path">Path to json format file.</param>
-    public static void ReadJson(string path)
+    public static List<Product> ReadJson()
     {
-        var oneLine = new StringBuilder();
-        using var reader = new StreamReader(path);
-        while (reader.ReadLine() is { } line)
+        var sbText = new StringBuilder();
+        while (Console.ReadLine() is { } line)
         {
-            oneLine.Append(line.Trim());
+            sbText.Append(line);
         }
-        ParseJson(oneLine.ToString());
+            
+        string text = sbText.ToString();
+        BaseNode? rootNode = ParseJson(text);
+        
+        return ConvertNodeToProducts(rootNode);
     }
 }
