@@ -1,13 +1,12 @@
-using System.Security;
-using System.Text;
 using JsonWorker.Components;
+using System.Security;
 using JsonLib;
 using Utils;
 
 namespace JsonWorker;
 
 /// <summary>
-/// Processing solution cycle.
+/// Class for managing data and panels.
 /// </summary>
 public class DataManager
 {
@@ -34,6 +33,11 @@ public class DataManager
         } while (true);
     }
     
+    /// <summary>
+    /// Handles selected action with it type.
+    /// </summary>
+    /// <param name="action">Action type.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Empty action.</exception>
     private void HandleAction(ActionType action)
     {
         string userInput;
@@ -173,7 +177,8 @@ public class DataManager
                     ActionType.SortByIdAscending, ActionType.SortByIdDescending);
                 break;
             case ActionType.SortByName:
-                _groups = Templates.SortByStringItems("Name");
+                _groups = Templates.SortByStringItems("Name",
+                    ActionType.SortByNameAlphabetical, ActionType.SortByNameAlphabeticalReverse);
                 break;
             case ActionType.SortByPrice:
                 _groups = Templates.SortByNumberItems("Price", 
@@ -184,7 +189,7 @@ public class DataManager
                     ActionType.SortByReviewsAscending, ActionType.SortByReviewsDescending);
                 break;
             case ActionType.SortByCategory:
-                _groups = Templates.SortByNumberItems("Category", 
+                _groups = Templates.SortByStringItems("Category", 
                     ActionType.SortByCategoryAscending, ActionType.SortByCategoryDescending);
                 break;
             case ActionType.SortByQuantity:
@@ -257,6 +262,9 @@ public class DataManager
         }
     }
 
+    /// <summary>
+    /// Handles data showing in default console output.
+    /// </summary>
     private void HandleShow()
     {
         JsonParser.WriteJson(_products);
@@ -264,6 +272,10 @@ public class DataManager
         ConsoleMethod.ReadKey();
     }
 
+    /// <summary>
+    /// Handles data output in specified path or path from console.
+    /// </summary>
+    /// <param name="newPath">Should use new path or path from cache.</param>
     private void HandlePathOutput(bool newPath)
     {
         if (newPath || _path.Length == 0)
@@ -273,6 +285,7 @@ public class DataManager
         
         // Saving output stream.
         TextWriter defaultOutput = Console.Out;
+        bool dataSaved = false;
         
         try
         {
@@ -280,6 +293,8 @@ public class DataManager
             using var sw = new StreamWriter(_path);
             Console.SetOut(sw);
             JsonParser.WriteJson(_products);
+
+            dataSaved = true;
         }
         catch (SecurityException ex)
         {
@@ -291,8 +306,19 @@ public class DataManager
             // Setting default output.
             Console.SetOut(defaultOutput);
         }
+
+        if (!dataSaved)
+        {
+            return;
+        }
+        
+        ConsoleMethod.NicePrint("Data saved, enter any key to continue.");
+        ConsoleMethod.ReadKey();
     }
     
+    /// <summary>
+    /// Handles data input.
+    /// </summary>
     private void HandleFileInput()
     {
         HandlePathInput();
@@ -322,18 +348,27 @@ public class DataManager
         }
     }
 
+    /// <summary>
+    /// Handles input json data from default console stream.
+    /// </summary>
     private void HandleConsoleInput()
     {
         ConsoleMethod.NicePrint(MessageHelper.Get("ConsoleInput"), Color.Condition);
         _products = JsonParser.ReadJson();
     }
 
+    /// <summary>
+    /// Updates menu panel text.
+    /// </summary>
     private void UpdatePanelTitle()
     {
         _panelTitle = MessageHelper.Get("WorkPanelMessage", 
             "COUNT", _products.Count.ToString());
     }
 
+    /// <summary>
+    /// Handles getting file path.
+    /// </summary>
     private void HandlePathInput()
     {
         ConsoleMethod.NicePrint(MessageHelper.Get("FilePathInput"), Color.Condition);

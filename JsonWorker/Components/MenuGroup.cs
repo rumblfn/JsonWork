@@ -26,10 +26,8 @@ public class MenuGroup
     /// </summary>
     public void Write()
     {
-        if (Items.Any(item => item.Selected))
-        {
-            ConsoleMethod.NicePrint("?", Color.Primary, " ");
-        }
+        ConsoleMethod.NicePrint(Items.Any(item => item.Selected) ? "?" : " ", 
+            Color.Primary, " ");
 
         Console.Write(Name + @":");
         foreach (MenuItem item in Items)

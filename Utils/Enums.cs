@@ -1,5 +1,8 @@
 namespace Utils;
 
+/// <summary>
+/// Console colors for mapping.
+/// </summary>
 public enum Color
 {
     Condition,
@@ -8,12 +11,9 @@ public enum Color
     Error,
 }
 
-public enum ModelAction
-{
-    Filter,
-    Sort
-}
-
+/// <summary>
+/// Panel actions: input, filter, sorting, processing types.
+/// </summary>
 public enum ActionType
 {
     FileInput,

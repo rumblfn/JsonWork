@@ -28,15 +28,15 @@ public static class Program
         
         do
         {
-            // try
-            // {
+            try
+            {
                 var dm = new DataManager();
                 dm.Run();
-            // }
-            // catch (Exception ex)
-            // {
-            //     ConsoleMethod.NicePrint(ex.Message, Color.Error);
-            // }
+            }
+            catch (Exception ex)
+            {
+                ConsoleMethod.NicePrint(ex.Message, Color.Error);
+            }
         } while (HandleAgain());
         
         ConsoleMethod.NicePrint(MessageHelper.Get("ProgramFinished"));

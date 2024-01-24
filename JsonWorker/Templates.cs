@@ -4,10 +4,15 @@ using Utils;
 namespace JsonWorker;
 
 /// <summary>
-/// Use for menu templates.
+/// Provides menu panels for working with program,
 /// </summary>
 public static class Templates
 {
+    /// <summary>
+    /// Panel for initializing data.
+    /// It provides console and file actions.
+    /// </summary>
+    /// <returns>Input panel.</returns>
     public static MenuGroup[] InputTypeItems()
     {
         return new [] {
@@ -19,6 +24,11 @@ public static class Templates
         };
     }
     
+    /// <summary>
+    /// Main panel for processing data.
+    /// It provides sorts, filters and data managing actions.
+    /// </summary>
+    /// <returns>Work panel.</returns>
     public static MenuGroup[] WorkTypeItems()
     {
         return new MenuGroup [] {
@@ -50,6 +60,14 @@ public static class Templates
         };
     }
     
+    /// <summary>
+    /// Panel for selecting sort type for numbers
+    /// specified by their actions and fields.
+    /// </summary>
+    /// <param name="sortKey">Field in Model.</param>
+    /// <param name="firstType">Ascending sort type.</param>
+    /// <param name="secondType">Descending sort type.</param>
+    /// <returns>Panel for selecting sort type for numbers.</returns>
     public static MenuGroup[] SortByNumberItems(string sortKey, ActionType firstType, ActionType secondType)
     {
         return new MenuGroup [] {
@@ -61,17 +79,29 @@ public static class Templates
         };
     }
     
-    public static MenuGroup[] SortByStringItems(string sortKey)
+    /// <summary>
+    /// Panel for selecting sort type for strings
+    /// specified by their actions and fields.
+    /// </summary>
+    /// <param name="sortKey">Field in Model.</param>
+    /// <param name="firstType">Alphabetical sort type.</param>
+    /// <param name="secondType">Alphabetical reverse sort type.</param>
+    /// <returns>Panel for selecting sort type for strings.</returns>
+    public static MenuGroup[] SortByStringItems(string sortKey, ActionType firstType, ActionType secondType)
     {
         return new MenuGroup [] {
             new (MessageHelper.Get("SortType", "KEY", sortKey), new MenuItem[]
             {
-                new("Alphabetical", ActionType.SortByNameAlphabetical),
-                new("Reverse", ActionType.SortByNameAlphabeticalReverse),
+                new("Alphabetical", firstType),
+                new("Reverse", secondType),
             }),
         };
     }
     
+    /// <summary>
+    /// Panel selecting discount type action.
+    /// </summary>
+    /// <returns>Discount type panel.</returns>
     public static MenuGroup[] DiscountTypeItems()
     {
         return new MenuGroup [] {

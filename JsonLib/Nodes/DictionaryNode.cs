@@ -95,9 +95,15 @@ public class DictionaryNode : BaseNode
         }
     }
     
+    /// <summary>
+    /// Provide a string representation of the dictionary data.
+    /// </summary>
+    /// <returns>Dictionary in string view.</returns>
+    /// <exception cref="Exception">Error type of Data.</exception>
     public override string ToString()
     {
         var sb = new StringBuilder();
+        
         if (Data is not Dictionary<StringNode, BaseNode> data)
         {
             throw new Exception();

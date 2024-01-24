@@ -13,6 +13,10 @@ public class BooleanNode: BaseNode
         
     }
     
+    /// <summary>
+    /// Convert the boolean value to a string representation.
+    /// </summary>
+    /// <returns>Boolean string.</returns>
     public override string ToString()
     {
         return Data is null

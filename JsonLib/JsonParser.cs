@@ -32,11 +32,23 @@ public static class JsonParser
     private static readonly char[] Escapes = { QuoteEscape };
     private static readonly char[] TypeEndings = { ElementsSeparator, ArrayEnd, ObjectEnd, WhiteSpace };
     
+    /// <summary>
+    /// Use for writing dictionary key value pairs with formatting.
+    /// </summary>
+    /// <param name="key">Key in pair.</param>
+    /// <param name="value">Value in pair.</param>
     private static void WriteKeyValuePair(string key, string? value)
     {
         Console.WriteLine($@"{Tab}{Tab}{Quote}{key}{Quote}{KeyValueSeparator} {value}{ElementsSeparator}");
     }
 
+    /// <summary>
+    /// JSON format specify ending of elements.
+    /// Last element must not have comma <see cref="ElementsSeparator"/>.
+    /// Method writes elements specified by their indexes. It checks if element is last.
+    /// </summary>
+    /// <param name="currentIndex">Current element index.</param>
+    /// <param name="lastIndex">Last element index.</param>
     private static void HandleLastElementEnding(int currentIndex, int lastIndex)
     {
         if (currentIndex != lastIndex)
@@ -48,8 +60,9 @@ public static class JsonParser
     }
     
     /// <summary>
-    /// Method for parsing json in one line.
+    /// Method for writing specified by work data in json format.
     /// </summary>
+    /// <param name="products">List of products.</param>
     public static void WriteJson(List<Product> products)
     {
         Console.WriteLine(ArrayStart);
@@ -98,14 +111,17 @@ public static class JsonParser
     }
     
     /// <summary>
-    /// Updates node.
+    /// Updates current node with new node.
+    /// Setting new node if it <see cref="DictionaryNode"/> or <see cref="ListNode"/>
+    /// or adds node to current node.
     /// </summary>
     /// <param name="currentNode">Node to update.</param>
     /// <param name="newNode">Node to insert.</param>
     /// <param name="updateCurrent">Should update current?</param>
     /// <param name="isString">Should check if string can be key in object.</param>
     /// <exception cref="Exception">Error with inserting node.</exception>
-    private static void UpdateNode(ref BaseNode? currentNode, BaseNode newNode, bool updateCurrent = true, bool isString = false)
+    private static void UpdateNode(ref BaseNode? currentNode, BaseNode newNode, 
+        bool updateCurrent = true, bool isString = false)
     {
         switch (currentNode)
         {
@@ -267,6 +283,11 @@ public static class JsonParser
         return node;
     }
 
+    /// <summary>
+    /// Converts nodes to specified in work types.
+    /// </summary>
+    /// <param name="node">Root node with values in data.</param>
+    /// <returns>List of data specified in work.</returns>
     private static List<Product> ConvertNodeToProducts(BaseNode? node)
     {
         var list = new List<Product>();
@@ -325,8 +346,10 @@ public static class JsonParser
     }
 
     /// <summary>
-    /// Parses string to json.
+    /// Include work of two methods <see cref="ParseJson"/> and <see cref="ConvertNodeToProducts"/>.
+    /// Firstly it parse string to nodes, then it converts nodes to Array of Products.
     /// </summary>
+    /// <returns>Array of products.</returns>
     public static List<Product> ReadJson()
     {
         var sbText = new StringBuilder();

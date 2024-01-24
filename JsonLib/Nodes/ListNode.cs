@@ -35,9 +35,15 @@ public class ListNode : BaseNode
         return node;
     }
 
+    /// <summary>
+    /// Provide a string representation of the List data.
+    /// </summary>
+    /// <returns>List in string view.</returns>
+    /// <exception cref="Exception">Error type of Data.</exception>
     public override string ToString()
     {
         var sb = new StringBuilder();
+        
         if (Data is not List<BaseNode> data)
         {
             throw new Exception();

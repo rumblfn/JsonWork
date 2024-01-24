@@ -1,8 +1,8 @@
 namespace JsonLib.Nodes;
 
 /// <summary>
-/// Base node class.
-/// Provides parent and child nodes.
+/// Base node class. It provides properties for storing data
+/// and maintaining a parent-child relationship between nodes.
 /// </summary>
 public abstract class BaseNode
 {
