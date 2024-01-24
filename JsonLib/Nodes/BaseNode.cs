@@ -6,12 +6,12 @@ namespace JsonLib.Nodes;
 /// </summary>
 public abstract class BaseNode
 {
-    public object? Data { get; }
+    public object? Data { get; protected init; }
     public BaseNode? Parent { get; }
 
-    protected BaseNode(object? data, BaseNode? parent = null)
+    protected BaseNode(BaseNode? parent = null)
     {
-        Data = data;
+        Data = null;
         Parent = parent;
     }
 }

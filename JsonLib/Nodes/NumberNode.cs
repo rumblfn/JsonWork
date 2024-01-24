@@ -8,9 +8,9 @@ namespace JsonLib.Nodes;
 public class NumberNode : BaseNode
 {
     public NumberNode(double data, BaseNode? parent = null) 
-        : base(data, parent)
+        : base(parent)
     {
-        
+        Data = data;
     }
     
     public override string ToString()

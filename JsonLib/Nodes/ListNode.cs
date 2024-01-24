@@ -7,10 +7,10 @@ namespace JsonLib.Nodes;
 /// </summary>
 public class ListNode : BaseNode
 {
-    public ListNode(List<BaseNode> data, BaseNode? parent = null) 
-        : base(data, parent)
+    public ListNode(BaseNode? parent = null) 
+        : base(parent)
     {
-        
+        Data = new List<BaseNode>();
     }
 
     public List<BaseNode>? GetData()
@@ -32,7 +32,7 @@ public class ListNode : BaseNode
         }
         
         data.Add(node);
-        return node;
+        return node is DictionaryNode or ListNode ? node : this;
     }
 
     /// <summary>

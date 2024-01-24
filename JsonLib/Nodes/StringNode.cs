@@ -6,9 +6,9 @@ namespace JsonLib.Nodes;
 public class StringNode : BaseNode
 {
     public StringNode(string data, BaseNode? parent = null) 
-        : base(data, parent)
+        : base(parent)
     {
-        
+        Data = data;
     }
     
     public bool Equals(string key)

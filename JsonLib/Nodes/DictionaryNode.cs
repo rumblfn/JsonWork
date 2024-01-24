@@ -10,10 +10,21 @@ public class DictionaryNode : BaseNode
 {
     private StringNode? PendingKey { get; set; }
     
-    public DictionaryNode(Dictionary<StringNode, BaseNode> data, BaseNode? parent = null) 
-        : base(data, parent)
+    public DictionaryNode(BaseNode? parent = null) 
+        : base(parent)
     {
-        
+        Data = new Dictionary<StringNode, BaseNode>();
+    }
+
+    
+    /// <summary>
+    /// Method for adding nodes.
+    /// </summary>
+    /// <param name="node">Node to add.</param>
+    /// <returns>Node specified by calling methods.</returns>
+    public BaseNode Add(BaseNode node)
+    {
+        return node is StringNode ? AddKeyOrValue(node) : AddWithKeyFromCache(node);
     }
 
     /// <summary>
@@ -23,7 +34,7 @@ public class DictionaryNode : BaseNode
     /// <param name="node">Node to add.</param>
     /// <returns>Added node.</returns>
     /// <exception cref="Exception">Error with adding node.</exception>
-    public BaseNode AddKeyOrValue(BaseNode node)
+    private BaseNode AddKeyOrValue(BaseNode node)
     {
         if (PendingKey != null)
         {
@@ -36,7 +47,7 @@ public class DictionaryNode : BaseNode
         }
             
         PendingKey = stringNode;
-        return stringNode;
+        return this;
     }
 
     /// <summary>
@@ -45,7 +56,7 @@ public class DictionaryNode : BaseNode
     /// <param name="node">Any child node.</param>
     /// <returns>Added child.</returns>
     /// <exception cref="Exception">If cache is empty</exception>
-    public BaseNode AddWithKeyFromCache(BaseNode node)
+    private BaseNode AddWithKeyFromCache(BaseNode node)
     {
         if (PendingKey == null)
         {
@@ -56,8 +67,7 @@ public class DictionaryNode : BaseNode
         
         // Clean cache.
         PendingKey = null;
-        
-        return node;
+        return node is DictionaryNode or ListNode ? node : this;
     }
     
     /// <summary>

@@ -116,7 +116,7 @@
         <value>> Enter max product price: </value>
     </data>
     <data name="FilterByCategoryMessage" xml:space="preserve">
-        <value>> Enter product category name or sub name: </value>
+        <value>> Enter product category name: </value>
     </data>
     <data name="FilterByQuantityMessage" xml:space="preserve">
         <value>Filter by product quantity</value>
@@ -131,7 +131,7 @@
         <value>On discount</value>
     </data>
     <data name="SetDiscountFalse" xml:space="preserve">
-        <value>All</value>
+        <value>Not on discount</value>
     </data>
     <data name="DiscountUpdateMessage" xml:space="preserve">
         <value>Products filtered by set discount to {STATUS}</value>

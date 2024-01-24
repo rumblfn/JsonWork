@@ -50,6 +50,7 @@ public enum ActionType
     SortByQuantityAscending,
     SortByQuantityDescending,
     
+    SetInitialData,
     ShowData,
     SaveToExistingFile,
     SaveToNewFile,

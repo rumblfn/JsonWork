@@ -53,6 +53,7 @@ public static class Templates
             }),
             new (MessageHelper.Get("DataAction"), new MenuItem[]
             {
+                new(MessageHelper.Get("SetInitialData"), ActionType.SetInitialData),
                 new(MessageHelper.Get("ShowData"), ActionType.ShowData),
                 new(MessageHelper.Get("Save"), ActionType.SaveToExistingFile),
                 new(MessageHelper.Get("SaveNew"), ActionType.SaveToNewFile),

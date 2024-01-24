@@ -8,9 +8,9 @@ namespace JsonLib.Nodes;
 public class BooleanNode: BaseNode
 {
     public BooleanNode(bool? data, BaseNode? parent = null)
-        : base(data, parent)
+        : base(parent)
     {
-        
+        Data = data;
     }
     
     /// <summary>

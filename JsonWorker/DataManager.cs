@@ -6,12 +6,23 @@ using Utils;
 namespace JsonWorker;
 
 /// <summary>
-/// Class for managing data and panels.
+/// Processing solution cycle.
 /// </summary>
 public class DataManager
 {
     private string _path = string.Empty;
-    private List<Product> _products = new ();
+    private List<Product> _initialProducts = new();
+    private List<Product> _products = new();
+    
+    private List<Product> Products
+    {
+        set
+        {
+            _products = value;
+            _initialProducts = new List<Product>(value);
+        }
+        get => _products;
+    }
 
     private string _panelTitle = MessageHelper.Get("PanelMessage");
     private MenuGroup[] _groups = Templates.InputTypeItems();
@@ -34,15 +45,12 @@ public class DataManager
     }
     
     /// <summary>
-    /// Handles selected action with it type.
+    /// Handles selected action.
     /// </summary>
-    /// <param name="action">Action type.</param>
-    /// <exception cref="ArgumentOutOfRangeException">Empty action.</exception>
+    /// <param name="action">Action to handle.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Unhandled action.</exception>
     private void HandleAction(ActionType action)
     {
-        string userInput;
-        
-        // TODO: Simplify this switch case statement.
         switch (action)
         {
             // Data initialization.
@@ -59,100 +67,22 @@ public class DataManager
             
             // Filters.
             case ActionType.FilterById:
-                ConsoleMethod.NicePrint(MessageHelper.Get("FilterByIdMessage"));
-                userInput = ConsoleMethod.ReadLine();
-                
-                bool idParsed = int.TryParse(userInput, out int searchId);
-                switch (idParsed)
-                {
-                    case true:
-                        _products = _products.Where(product => product.Id == searchId).ToList();
-                        break;
-                    case false:
-                        ConsoleMethod.NicePrint(MessageHelper.Get("ParseIntegerError", 
-                            "INPUT", userInput));
-                        break;
-                }
-                
-                UpdatePanelTitle();
+                HandleFilterById();
                 break;
             case ActionType.FilterByName:
-                ConsoleMethod.NicePrint(MessageHelper.Get("FilterByNameMessage"));
-                userInput = ConsoleMethod.ReadLine();
-                _products = _products.Where(product => 
-                    product.Name != null && product.Name.Contains(userInput)).ToList();
-                UpdatePanelTitle();
+                HandleFilterByName();
                 break;
             case ActionType.FilterByPrice:
-                ConsoleMethod.NicePrint(MessageHelper.Get("FilterByPriceMessage"), 
-                    Color.Condition, Environment.NewLine);
-                
-                ConsoleMethod.NicePrint(MessageHelper.Get("FilterByMinPriceMessage"));
-                userInput = ConsoleMethod.ReadLine();
-                
-                bool minPriceParsed = int.TryParse(userInput, out int minPrice);
-                switch (minPriceParsed)
-                {
-                    case true:
-                        _products = _products.Where(product => product.Price >= minPrice).ToList();
-                        break;
-                    case false:
-                        ConsoleMethod.NicePrint(MessageHelper.Get("ParseIntegerError", 
-                            "INPUT", userInput));
-                        break;
-                }
-                
-                ConsoleMethod.NicePrint(MessageHelper.Get("FilterByMaxPriceMessage"));
-                userInput = ConsoleMethod.ReadLine();
-                
-                bool maxPriceParsed = int.TryParse(userInput, out int maxPrice);
-                switch (maxPriceParsed)
-                {
-                    case true:
-                        _products = _products.Where(product => product.Price <= maxPrice).ToList();
-                        break;
-                    case false:
-                        ConsoleMethod.NicePrint(MessageHelper.Get("ParseIntegerError", 
-                            "INPUT", userInput));
-                        break;
-                }
-                
-                UpdatePanelTitle();
+                HandleFilterByPrice();
                 break;
             case ActionType.FilterByReviews:
-                ConsoleMethod.NicePrint(MessageHelper.Get("FilterByReviewsMessage"));
-                userInput = ConsoleMethod.ReadLine();
-                _products = _products.Where(product => 
-                    product.Reviews != null && product.Reviews.Any(review => 
-                        review.Contains(userInput))).ToList();
-                UpdatePanelTitle();
+                HandleFilterByReviews();
                 break;
             case ActionType.FilterByCategory:
-                ConsoleMethod.NicePrint(MessageHelper.Get("FilterByCategoryMessage"));
-                userInput = ConsoleMethod.ReadLine();
-                _products = _products.Where(product => 
-                    product.Category != null && product.Category == $"\"{userInput}\"").ToList();
-                UpdatePanelTitle();
+                HandleFilterByCategory();
                 break;
             case ActionType.FilterByQuantity:
-                ConsoleMethod.NicePrint(MessageHelper.Get("FilterByQuantityMessage"), 
-                    Color.Condition, Environment.NewLine);
-                
-                ConsoleMethod.NicePrint(MessageHelper.Get("FilterByMinQuantityMessage"));
-                userInput = ConsoleMethod.ReadLine();
-                
-                bool minQuantityParsed = int.TryParse(userInput, out int minQuantity);
-                switch (minQuantityParsed)
-                {
-                    case true:
-                        _products = _products.Where(product => product.QuantityInStock >= minQuantity).ToList();
-                        break;
-                    case false:
-                        ConsoleMethod.NicePrint(MessageHelper.Get("ParseIntegerError", 
-                            "INPUT", userInput));
-                        break;
-                }
-                UpdatePanelTitle();
+                HandleFilterByQuantity();
                 break;
             case ActionType.FilterByDiscount:
                 _panelTitle = MessageHelper.Get("DiscountTypeAction");
@@ -172,12 +102,14 @@ public class DataManager
                 _groups = Templates.WorkTypeItems();
                 UpdatePanelTitle();
                 break;
+            
+            // Sort panels.
             case ActionType.SortById:
                 _groups = Templates.SortByNumberItems("Id", 
                     ActionType.SortByIdAscending, ActionType.SortByIdDescending);
                 break;
             case ActionType.SortByName:
-                _groups = Templates.SortByStringItems("Name",
+                _groups = Templates.SortByStringItems("Name", 
                     ActionType.SortByNameAlphabetical, ActionType.SortByNameAlphabeticalReverse);
                 break;
             case ActionType.SortByPrice:
@@ -189,7 +121,7 @@ public class DataManager
                     ActionType.SortByReviewsAscending, ActionType.SortByReviewsDescending);
                 break;
             case ActionType.SortByCategory:
-                _groups = Templates.SortByStringItems("Category", 
+                _groups = Templates.SortByNumberItems("Category", 
                     ActionType.SortByCategoryAscending, ActionType.SortByCategoryDescending);
                 break;
             case ActionType.SortByQuantity:
@@ -248,6 +180,10 @@ public class DataManager
                 break;
             
             // Initial data.
+            case ActionType.SetInitialData:
+                _products = _initialProducts;
+                UpdatePanelTitle();
+                break;
             case ActionType.ShowData:
                 HandleShow();
                 break;
@@ -263,7 +199,134 @@ public class DataManager
     }
 
     /// <summary>
-    /// Handles data showing in default console output.
+    /// Provides filtering products by quantity min count.
+    /// </summary>
+    private void HandleFilterByQuantity()
+    {
+        ConsoleMethod.NicePrint(MessageHelper.Get("FilterByQuantityMessage"), 
+            Color.Condition, Environment.NewLine);
+                
+        ConsoleMethod.NicePrint(MessageHelper.Get("FilterByMinQuantityMessage"));
+        string userInput = ConsoleMethod.ReadLine();
+                
+        bool minQuantityParsed = int.TryParse(userInput, out int minQuantity);
+        switch (minQuantityParsed)
+        {
+            case true:
+                _products = _products.Where(product => product.QuantityInStock >= minQuantity).ToList();
+                break;
+            case false:
+                ConsoleMethod.NicePrint(MessageHelper.Get("ParseIntegerError", 
+                    "INPUT", userInput));
+                break;
+        }
+        UpdatePanelTitle();
+    }
+
+    /// <summary>
+    /// Provides filtering products by category name.
+    /// </summary>
+    private void HandleFilterByCategory()
+    {
+        ConsoleMethod.NicePrint(MessageHelper.Get("FilterByCategoryMessage"));
+        string userInput = ConsoleMethod.ReadLine();
+        _products = _products.Where(product => 
+            product.Category != null && 
+            product.Category == $"\"{userInput}\"" || product.Category == userInput).ToList();
+        UpdatePanelTitle();
+    }
+
+    /// <summary>
+    /// Provides filtering products by reviews count.
+    /// </summary>
+    private void HandleFilterByReviews()
+    {
+        ConsoleMethod.NicePrint(MessageHelper.Get("FilterByReviewsMessage"));
+        string userInput = ConsoleMethod.ReadLine();
+        _products = _products.Where(product => 
+            product.Reviews != null && product.Reviews.Any(review => 
+                review.Contains(userInput))).ToList();
+        UpdatePanelTitle();
+    }
+
+    /// <summary>
+    /// Provides filtering products by min and max price.
+    /// </summary>
+    private void HandleFilterByPrice()
+    {
+        ConsoleMethod.NicePrint(MessageHelper.Get("FilterByPriceMessage"), 
+            Color.Condition, Environment.NewLine);
+                
+        ConsoleMethod.NicePrint(MessageHelper.Get("FilterByMinPriceMessage"));
+        string userInput = ConsoleMethod.ReadLine();
+                
+        bool minPriceParsed = int.TryParse(userInput, out int minPrice);
+        switch (minPriceParsed)
+        {
+            case true:
+                _products = _products.Where(product => product.Price >= minPrice).ToList();
+                break;
+            case false:
+                ConsoleMethod.NicePrint(MessageHelper.Get("ParseIntegerError", 
+                    "INPUT", userInput));
+                break;
+        }
+                
+        ConsoleMethod.NicePrint(MessageHelper.Get("FilterByMaxPriceMessage"));
+        userInput = ConsoleMethod.ReadLine();
+                
+        bool maxPriceParsed = int.TryParse(userInput, out int maxPrice);
+        switch (maxPriceParsed)
+        {
+            case true:
+                _products = _products.Where(product => product.Price <= maxPrice).ToList();
+                break;
+            case false:
+                ConsoleMethod.NicePrint(MessageHelper.Get("ParseIntegerError", 
+                    "INPUT", userInput));
+                break;
+        }
+                
+        UpdatePanelTitle();
+    }
+
+    /// <summary>
+    /// Provides filtering products by name.
+    /// </summary>
+    private void HandleFilterByName()
+    {
+        ConsoleMethod.NicePrint(MessageHelper.Get("FilterByNameMessage"));
+        string userInput = ConsoleMethod.ReadLine();
+        _products = _products.Where(product => 
+            product.Name != null && product.Name.Contains(userInput)).ToList();
+        UpdatePanelTitle();
+    }
+
+    /// <summary>
+    /// Provides filtering products by id.
+    /// </summary>
+    private void HandleFilterById()
+    {
+        ConsoleMethod.NicePrint(MessageHelper.Get("FilterByIdMessage"));
+        string userInput = ConsoleMethod.ReadLine();
+                
+        bool idParsed = int.TryParse(userInput, out int searchId);
+        switch (idParsed)
+        {
+            case true:
+                _products = _products.Where(product => product.Id == searchId).ToList();
+                break;
+            case false:
+                ConsoleMethod.NicePrint(MessageHelper.Get("ParseIntegerError", 
+                    "INPUT", userInput));
+                break;
+        }
+                
+        UpdatePanelTitle();
+    }
+
+    /// <summary>
+    /// Write products to standard console output.
     /// </summary>
     private void HandleShow()
     {
@@ -273,9 +336,9 @@ public class DataManager
     }
 
     /// <summary>
-    /// Handles data output in specified path or path from console.
+    /// Write products to file.
     /// </summary>
-    /// <param name="newPath">Should use new path or path from cache.</param>
+    /// <param name="newPath">New path to file.</param>
     private void HandlePathOutput(bool newPath)
     {
         if (newPath || _path.Length == 0)
@@ -285,7 +348,6 @@ public class DataManager
         
         // Saving output stream.
         TextWriter defaultOutput = Console.Out;
-        bool dataSaved = false;
         
         try
         {
@@ -293,8 +355,6 @@ public class DataManager
             using var sw = new StreamWriter(_path);
             Console.SetOut(sw);
             JsonParser.WriteJson(_products);
-
-            dataSaved = true;
         }
         catch (SecurityException ex)
         {
@@ -306,18 +366,10 @@ public class DataManager
             // Setting default output.
             Console.SetOut(defaultOutput);
         }
-
-        if (!dataSaved)
-        {
-            return;
-        }
-        
-        ConsoleMethod.NicePrint("Data saved, enter any key to continue.");
-        ConsoleMethod.ReadKey();
     }
     
     /// <summary>
-    /// Handles data input.
+    /// Get products from file.
     /// </summary>
     private void HandleFileInput()
     {
@@ -329,7 +381,7 @@ public class DataManager
             using var sr = new StreamReader(_path);
             Console.SetIn(sr);
 
-            _products = JsonParser.ReadJson();
+            Products = JsonParser.ReadJson();
         }
         catch (FileNotFoundException)
         {
@@ -348,27 +400,18 @@ public class DataManager
         }
     }
 
-    /// <summary>
-    /// Handles input json data from default console stream.
-    /// </summary>
     private void HandleConsoleInput()
     {
         ConsoleMethod.NicePrint(MessageHelper.Get("ConsoleInput"), Color.Condition);
-        _products = JsonParser.ReadJson();
+        Products = JsonParser.ReadJson();
     }
 
-    /// <summary>
-    /// Updates menu panel text.
-    /// </summary>
     private void UpdatePanelTitle()
     {
         _panelTitle = MessageHelper.Get("WorkPanelMessage", 
-            "COUNT", _products.Count.ToString());
+            "COUNT", Products.Count.ToString());
     }
 
-    /// <summary>
-    /// Handles getting file path.
-    /// </summary>
     private void HandlePathInput()
     {
         ConsoleMethod.NicePrint(MessageHelper.Get("FilePathInput"), Color.Condition);
