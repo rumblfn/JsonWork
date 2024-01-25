@@ -348,6 +348,7 @@ public class DataManager
         
         // Saving output stream.
         TextWriter defaultOutput = Console.Out;
+        bool dataSaved = false;
         
         try
         {
@@ -355,6 +356,7 @@ public class DataManager
             using var sw = new StreamWriter(_path);
             Console.SetOut(sw);
             JsonParser.WriteJson(_products);
+            dataSaved = true;
         }
         catch (SecurityException ex)
         {
@@ -366,6 +368,14 @@ public class DataManager
             // Setting default output.
             Console.SetOut(defaultOutput);
         }
+
+        if (!dataSaved)
+        {
+            return;
+        }
+        
+        ConsoleMethod.NicePrint("Data saved. Press any key to continue.", Color.Primary);
+        ConsoleMethod.ReadKey();
     }
     
     /// <summary>

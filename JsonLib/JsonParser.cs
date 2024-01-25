@@ -144,7 +144,7 @@ public static class JsonParser
     {
         if (value != validValue)
         {
-            throw new Exception();
+            throw new ArgumentException($"Value {value} is not {validValue}");
         }
     }
 
@@ -181,7 +181,7 @@ public static class JsonParser
                 break;
             case ArrayEnd:
             case ObjectEnd:
-                throw new Exception();
+                throw new FormatException("Structure ending incorrect.");
         }
     }
 
